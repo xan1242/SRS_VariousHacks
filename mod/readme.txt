@@ -17,8 +17,9 @@ Features:
 
 How to use:
 1. Extract the archive to the game directory (SteamLibrary\steamapps\common\Street Racing Syndicate).
-2. Edit the settings in the Bin\scripts\StreetRacingSyndicate.VariousHacks.ini to your liking.
-3. Run the game.
+2. Install Ultimate ASI Loader to the Bin folder (https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases).
+3. Edit the settings in the Bin\scripts\StreetRacingSyndicate.VariousHacks.ini to your liking.
+4. Run the game.
 
 For any questions or details on how to use - join my Discord server (https://discord.com/invite/DxC6Fyf).
 
