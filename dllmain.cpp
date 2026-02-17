@@ -149,6 +149,62 @@ void __stdcall CWnd_Destructor_Hook(uint32_t deleteFlag)
 	PostQuitMessage(0);
 }
 
+
+float YawSteerAssist = -1.0f;
+uintptr_t p_ParseFloatToken_YawSteerAssist;
+float __stdcall ParseFloatToken_YawSteerAssist()
+{
+	uintptr_t that;
+	_asm mov that, ecx
+
+	float retVal = reinterpret_cast<float(__thiscall*)(uintptr_t)>(p_ParseFloatToken_YawSteerAssist)(that);
+
+	if (YawSteerAssist < 0.0f)
+		return retVal;
+
+	return YawSteerAssist;
+}
+
+float AssistWeight = -1.0f;
+uintptr_t p_ParseFloatToken_AssistWeight;
+float __stdcall ParseFloatToken_AssistWeight()
+{
+	uintptr_t that;
+	_asm mov that, ecx
+
+	float retVal = reinterpret_cast<float(__thiscall*)(uintptr_t)>(p_ParseFloatToken_AssistWeight)(that);
+
+	if (AssistWeight < 0.0f)
+		return retVal;
+
+	return AssistWeight;
+}
+
+enum SteeringAssistType : int32_t
+{
+	STEERINGASSIST_UNK = -1,
+	STEERINGASSIST_DEFAULT,
+	STEERINGASSIST_MIN = STEERINGASSIST_DEFAULT,
+	STEERINGASSIST_NONE,
+	STEERINGASSIST_SPORTS,
+	STEERINGASSIST_RACER,
+	STEERINGASSIST_MAX = STEERINGASSIST_RACER,
+	STEERINGASSIST_NUM,
+};
+
+SteeringAssistType AssistType = STEERINGASSIST_UNK;
+uintptr_t p_ParseAssistType;
+float __stdcall ParseAssistType_Hook()
+{
+	uintptr_t that;
+	_asm mov that, ecx
+
+	reinterpret_cast<void(__thiscall*)(uintptr_t)>(p_ParseAssistType)(that);
+
+	if (AssistType >= STEERINGASSIST_DEFAULT)
+		*reinterpret_cast<SteeringAssistType*>(that + 0x74) = AssistType;
+}
+
 #pragma runtime_checks( "", restore )
 
 
@@ -186,6 +242,8 @@ void Init()
 	int nosColorBlue = 0;
 	int nosColorAlpha = 0;
 
+	bool NoABS = false;
+
 
 
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("SkipIntroVideo"), SkipIntroVideo);
@@ -212,6 +270,12 @@ void Init()
 
 	ini.ReadValue(FINI_HASH("HOT_KEYS"), FINI_HASH("ToggleHood"), hk_ToggleHood);
 	ini.ReadValue(FINI_HASH("HOT_KEYS"), FINI_HASH("ToggleDrawHUD"), hk_ToggleDrawHUD);
+
+	ini.ReadValue(FINI_HASH("Assists"), FINI_HASH("NoABS"), NoABS);
+
+	ini.ReadValue(FINI_HASH("SteeringAssists"), FINI_HASH("YawSteerAssist"), YawSteerAssist);
+	ini.ReadValue(FINI_HASH("SteeringAssists"), FINI_HASH("AssistWeight"), AssistWeight);
+	ini.ReadEnum(FINI_HASH("SteeringAssists"), FINI_HASH("AssistType"), AssistType, STEERINGASSIST_MIN, STEERINGASSIST_MAX);
 
 
 	if (RoadCarReflections)
@@ -274,6 +338,11 @@ void Init()
 		injector::MakeNOP(0x55A30A, 5);
 	}
 
+	if (NoABS)
+	{
+		injector::MakeRangedNOP(0x6D0500, 0x006D0508);
+	}
+
 
 	injector::WriteMemory(Game::MaxRespect1, MaxRespect, true);
 	injector::WriteMemory(Game::MaxRespect2, MaxRespect, true);
@@ -286,6 +355,18 @@ void Init()
 	injector::WriteMemory(0x006A6CCF, nosColorGreen, true);
 	injector::WriteMemory(0x006A6CC3, nosColorBlue, true);
 	injector::WriteMemory(0x006A6CBE, nosColorAlpha, true);
+
+	uintptr_t loc_6E5B63 = 0x6E5B63;
+	p_ParseFloatToken_YawSteerAssist = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B63));
+	injector::MakeCALL(loc_6E5B63, ParseFloatToken_YawSteerAssist);
+
+	uintptr_t loc_6E5B23 = 0x6E5B23;
+	p_ParseFloatToken_AssistWeight = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B23));
+	injector::MakeCALL(loc_6E5B23, ParseFloatToken_AssistWeight);
+
+	uintptr_t loc_6E5A81 = 0x6E5A81;
+	p_ParseAssistType = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5A81));
+	injector::MakeCALL(loc_6E5A81, ParseAssistType_Hook);
 
 	injector::MakeCALL(0x004044B8, MainLoop, true);
 
