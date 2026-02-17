@@ -1,6 +1,4 @@
 #include "framework.h"
-#include <Windows.h>
-#include "IniReader/IniReader.h"
 #include "Injector/injector.hpp"
 
 int hk_ToggleHood, hk_ToggleDrawHUD;
