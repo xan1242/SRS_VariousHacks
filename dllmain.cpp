@@ -17,6 +17,9 @@ int hk_ToggleDrawHUD;
 bool ToggleHood = false;
 bool CopCarInDealer = false;
 bool ShowHiddenVinyl = false;
+bool FixAltF4 = false;
+
+bool bAltF4OldState = false;
 
 namespace Game
 {
@@ -60,10 +63,15 @@ void ProcessEngineAnimation(uint32_t* playerCar)
 	}
 }
 
+bool IsAltF4Down()
+{
+	return ((GetAsyncKeyState(VK_MENU) & 0x8000) ||
+		(GetAsyncKeyState(VK_LMENU) & 0x8000) &&
+		(GetAsyncKeyState(VK_F4) & 0x8000));
+}
+
 void MainLoop()
 {
-	__asm pushad;
-
 	ProcessEngineAnimation(Game::RaceCars[0]);
 	ProcessEngineAnimation(Game::GarageCar[0]);
 
@@ -88,7 +96,21 @@ void MainLoop()
 		Game::SetShowHiddenVinyl();
 	}
 
-	__asm popad;
+	// hacky workaround for now -- game uses MFC and some weird shenanigans...
+	if (FixAltF4)
+	{
+		bool bAltF4State = IsAltF4Down();
+		
+		if (bAltF4State != bAltF4OldState)
+		{
+			if (!bAltF4State) // negative edge
+			{
+				PostQuitMessage(0);
+			}
+		}
+
+		bAltF4OldState = bAltF4State;
+	}
 }
 
 void InitCameraModes()
@@ -177,6 +199,7 @@ void Init()
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NoEngineRestrictions"), NoEngineRestrictions);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("Console"), Console);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("DisableMinimizeOnAltTab"), DisableMinimizeOnAltTab);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("FixAltF4"), FixAltF4);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("ShowHiddenVinyl"), ShowHiddenVinyl);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("MaxRespect"), MaxRespect);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NumPaintColors"), NumPaintColors);
