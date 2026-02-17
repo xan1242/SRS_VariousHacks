@@ -113,10 +113,36 @@ void __declspec(naked) InitCameraModesCave()
 }
 
 
+#pragma runtime_checks( "", off )
+
+// resolves game not closing on window close
+uintptr_t p_CWnd_Destructor;
+void __stdcall CWnd_Destructor_Hook(uint32_t deleteFlag)
+{
+	uintptr_t that;
+	_asm mov that, ecx
+
+	reinterpret_cast<void(__thiscall*)(uintptr_t, uint32_t)>(p_CWnd_Destructor)(that, deleteFlag);
+
+	PostQuitMessage(0);
+}
+
+#pragma runtime_checks( "", restore )
+
+
 void Init()
 {
 	fINI::Reader ini;
 	int iniReadError = ini.Open(ModPath::GetThisModulePath<std::filesystem::path>().replace_extension("ini"));
+	
+	// patch window destructor to fix game closing on window close
+	constexpr size_t vtidx_CWnd_Destructor = 1;
+	uintptr_t loc_403B28 = 0x403B28;
+	uintptr_t* CWnd_vtbl = *reinterpret_cast<uintptr_t**>(loc_403B28 + 2);
+	p_CWnd_Destructor = CWnd_vtbl[vtidx_CWnd_Destructor];
+	injector::WriteMemory(&CWnd_vtbl[vtidx_CWnd_Destructor], &CWnd_Destructor_Hook, true);
+	
+	
 	if (iniReadError)
 		return;
 
@@ -129,6 +155,7 @@ void Init()
 	bool NoDecalRestrictions = false;
 	bool NoEngineRestrictions = false;
 	bool Console = false;
+	bool DisableMinimizeOnAltTab = false;
 	int MaxRespect = 250;
 	int NumPaintColors = 21;
 
@@ -149,6 +176,7 @@ void Init()
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NoDecalRestrictions"), NoDecalRestrictions);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NoEngineRestrictions"), NoEngineRestrictions);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("Console"), Console);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("DisableMinimizeOnAltTab"), DisableMinimizeOnAltTab);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("ShowHiddenVinyl"), ShowHiddenVinyl);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("MaxRespect"), MaxRespect);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NumPaintColors"), NumPaintColors);
@@ -204,6 +232,15 @@ void Init()
 		freopen("CONOUT$", "wb", stderr);
 	}
 
+	if (DisableMinimizeOnAltTab)
+	{
+		injector::MakeRET(0x403B70, 8);
+		// yeet the print spam
+		injector::MakeNOP(0x61DDA7, 5);
+		injector::MakeNOP(0x61DDDC, 5);
+		injector::MakeNOP(0x61DEEB, 5);
+	}
+
 	if (SkipIntroVideo)
 	{
 		injector::MakeJMP(0x5B665E, 0x5B6709);
@@ -228,6 +265,7 @@ void Init()
 	injector::WriteMemory(0x006A6CBE, nosColorAlpha, true);
 
 	injector::MakeCALL(0x004044B8, MainLoop, true);
+
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  reason, LPVOID lpReserved)
