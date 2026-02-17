@@ -1,5 +1,16 @@
 #include "framework.h"
-#include "includes\injector\injector.hpp"
+#include "includes/injector/injector.hpp"
+
+#define FINI_CRLF_NEWLINE
+#define FINI_WRITEINTBOOLS
+#define FINI_SEMICOLONSONLY
+#define FINI_NOINLINECOMMENTSPARSE
+#define FINI_NOPRECEDINGCOMMENTSPARSE
+#define FINI_USEHASH
+#define FINI_READONLY
+#include "includes/fini/fini.hpp"
+#include "includes/ModPath.hpp"
+#include <filesystem>
 
 int hk_ToggleHood;
 int hk_ToggleDrawHUD;
@@ -101,86 +112,106 @@ void __declspec(naked) InitCameraModesCave()
 	}
 }
 
-void __cdecl ConsolePrint(const char* format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	vfprintf(stdout, format, args);
-	va_end(args);
-}
 
 void Init()
 {
-	CIniReader ini("StreetRacingSyndicate.VariousHacks.ini");
+	fINI::Reader ini;
+	int iniReadError = ini.Open(ModPath::GetThisModulePath<std::filesystem::path>().replace_extension("ini"));
+	if (iniReadError)
+		return;
 
-	if (ini.ReadInteger("GENERAL", "RoadCarReflections", 0) == 1)
+	bool RoadCarReflections = false;
+	bool HighestLods = false;
+	bool InfiniteNosFlame = false;
+	bool MoreCameraModes = false;
+	bool NoDecalRestrictions = false;
+	bool NoEngineRestrictions = false;
+	bool Console = false;
+	int MaxRespect = 250;
+	int NumPaintColors = 21;
+
+	int nosColorRed = 0;
+	int nosColorGreen = 0;
+	int nosColorBlue = 0;
+	int nosColorAlpha = 0;
+
+
+
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("RoadCarReflections"), RoadCarReflections);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("CopCarInDealer"), CopCarInDealer);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("HighestLods"), HighestLods);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("InfiniteNosFlame"), InfiniteNosFlame);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("MoreCameraModes"), MoreCameraModes);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NoDecalRestrictions"), NoDecalRestrictions);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NoEngineRestrictions"), NoEngineRestrictions);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("Console"), Console);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("ShowHiddenVinyl"), ShowHiddenVinyl);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("MaxRespect"), MaxRespect);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NumPaintColors"), NumPaintColors);
+
+	ini.ReadValue(FINI_HASH("NOS_FLAME"), FINI_HASH("Red"), nosColorRed);
+	ini.ReadValue(FINI_HASH("NOS_FLAME"), FINI_HASH("Green"), nosColorGreen);
+	ini.ReadValue(FINI_HASH("NOS_FLAME"), FINI_HASH("Blue"), nosColorBlue);
+	ini.ReadValue(FINI_HASH("NOS_FLAME"), FINI_HASH("Alpha"), nosColorAlpha);
+
+
+	ini.ReadValue(FINI_HASH("HOT_KEYS"), FINI_HASH("ToggleHood"), hk_ToggleHood);
+	ini.ReadValue(FINI_HASH("HOT_KEYS"), FINI_HASH("ToggleDrawHUD"), hk_ToggleDrawHUD);
+
+
+	if (RoadCarReflections)
 	{
 		injector::WriteMemory<BYTE>(0x006834A7, 0, true);
 	}
 
-	CopCarInDealer = ini.ReadInteger("GENERAL", "CopCarInDealer", 0) == 1;
 
-	if (ini.ReadInteger("GENERAL", "HighestLods", 0) == 1)
+	if (HighestLods)
 	{
 		injector::MakeNOP(0x00551B12, 2, true);
 	}
 
-	if (ini.ReadInteger("GENERAL", "InfiniteNosFlame", 0) == 1)
+	if (InfiniteNosFlame)
 	{
 		injector::MakeNOP(0x006A86C4, 2, true);
 	}
 
-	if (ini.ReadInteger("GENERAL", "MoreCameraModes", 0) == 1)
+	if (MoreCameraModes)
 	{
 		injector::MakeJMP(0x00523659, InitCameraModesCave, true);
 	}
 
-	if (ini.ReadInteger("GENERAL", "NoDecalRestrictions", 0) == 1)
+	if (NoDecalRestrictions)
 	{
 		injector::WriteMemory<BYTE>(0x0055E256, 0xEB, true);
 	}
 
-	if (ini.ReadInteger("GENERAL", "NoEngineRestrictions", 0) == 1)
+	if (NoEngineRestrictions)
 	{
 		injector::WriteMemory<unsigned short>(0x0050ED7B, 0x01B0, true);
 	}
 
-	if (ini.ReadInteger("GENERAL", "Console", 0) == 1)
+	if (Console)
 	{
-		injector::MakeJMP(0x006227A0, ConsolePrint, true);
+		injector::MakeJMP(0x006227A0, printf, true);
 
 		AllocConsole();
-		FILE* pfstdin;
-		FILE* pfstdout;
-		freopen_s(&pfstdout, "CONOUT$", "w", stdout);
-		freopen_s(&pfstdin, "CONIN$", "r", stdin);
+		AttachConsole(ATTACH_PARENT_PROCESS);
+		freopen("CONOUT$", "wb", stdout);
+		freopen("CONOUT$", "wb", stderr);
 	}
 
-	ShowHiddenVinyl = ini.ReadInteger("GENERAL", "ShowHiddenVinyl", 0) == 1;
 
-	int MaxRespect = ini.ReadInteger("GENERAL", "MaxRespect", 250);
 	injector::WriteMemory(Game::MaxRespect1, MaxRespect, true);
 	injector::WriteMemory(Game::MaxRespect2, MaxRespect, true);
 	injector::WriteMemory(Game::MaxRespect3, MaxRespect, true);
 	injector::WriteMemory(Game::MaxRespect4, MaxRespect, true);
 
-	int NumPaintColors = ini.ReadInteger("GENERAL", "NumPaintColors", 21);
 	injector::WriteMemory(0x005CDA26, NumPaintColors * 20, true);
 
-	int nosColorRed = ini.ReadInteger("NOS_FLAME", "Red", 0);
 	injector::WriteMemory(0x006A6CD4, nosColorRed, true);
-
-	int nosColorGreen = ini.ReadInteger("NOS_FLAME", "Green", 0);
 	injector::WriteMemory(0x006A6CCF, nosColorGreen, true);
-
-	int nosColorBlue = ini.ReadInteger("NOS_FLAME", "Blue", 0);
 	injector::WriteMemory(0x006A6CC3, nosColorBlue, true);
-
-	int nosColorAlpha = ini.ReadInteger("NOS_FLAME", "Alpha", 0);
 	injector::WriteMemory(0x006A6CBE, nosColorAlpha, true);
-
-	hk_ToggleHood = ini.ReadInteger("HOT_KEYS", "ToggleHood", 0);
-	hk_ToggleDrawHUD = ini.ReadInteger("HOT_KEYS", "ToggleDrawHUD", 0);
 
 	injector::MakeCALL(0x004044B8, MainLoop, true);
 }
