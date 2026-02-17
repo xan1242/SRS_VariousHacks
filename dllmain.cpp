@@ -17,7 +17,7 @@ int hk_ToggleDrawHUD;
 bool ToggleHood = false;
 bool CopCarInDealer = false;
 bool ShowHiddenVinyl = false;
-bool FixAltF4 = false;
+bool FixAltF4 = true;
 
 bool bAltF4OldState = false;
 
