@@ -1,8 +1,11 @@
 #include "framework.h"
 #include "includes\injector\injector.hpp"
 
-int hk_ToggleHood, hk_ToggleDrawHUD;
-bool ToggleHood = false, CopCarInDealer = false, ShowHiddenVinyl = false;
+int hk_ToggleHood;
+int hk_ToggleDrawHUD;
+bool ToggleHood = false;
+bool CopCarInDealer = false;
+bool ShowHiddenVinyl = false;
 
 namespace Game
 {
