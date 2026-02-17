@@ -120,6 +120,8 @@ void Init()
 	if (iniReadError)
 		return;
 
+	bool SkipIntroVideo = true;
+	bool SkipLegalScreens = true;
 	bool RoadCarReflections = false;
 	bool HighestLods = false;
 	bool InfiniteNosFlame = false;
@@ -137,6 +139,8 @@ void Init()
 
 
 
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("SkipIntroVideo"), SkipIntroVideo);
+	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("SkipLegalScreens"), SkipLegalScreens);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("RoadCarReflections"), RoadCarReflections);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("CopCarInDealer"), CopCarInDealer);
 	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("HighestLods"), HighestLods);
@@ -198,6 +202,16 @@ void Init()
 		AttachConsole(ATTACH_PARENT_PROCESS);
 		freopen("CONOUT$", "wb", stdout);
 		freopen("CONOUT$", "wb", stderr);
+	}
+
+	if (SkipIntroVideo)
+	{
+		injector::MakeJMP(0x5B665E, 0x5B6709);
+	}
+
+	if (SkipLegalScreens)
+	{
+		injector::MakeNOP(0x55A30A, 5);
 	}
 
 
