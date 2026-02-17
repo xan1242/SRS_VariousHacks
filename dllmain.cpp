@@ -161,7 +161,7 @@ void Init()
 
 	if (RoadCarReflections)
 	{
-		injector::WriteMemory<BYTE>(0x006834A7, 0, true);
+		injector::WriteMemory<uint8_t>(0x006834A7, 0, true);
 	}
 
 
@@ -182,12 +182,12 @@ void Init()
 
 	if (NoDecalRestrictions)
 	{
-		injector::WriteMemory<BYTE>(0x0055E256, 0xEB, true);
+		injector::WriteMemory<uint8_t>(0x0055E256, 0xEB, true);
 	}
 
 	if (NoEngineRestrictions)
 	{
-		injector::WriteMemory<unsigned short>(0x0050ED7B, 0x01B0, true);
+		injector::WriteMemory<uint16_t>(0x0050ED7B, 0x01B0, true);
 	}
 
 	if (Console)
