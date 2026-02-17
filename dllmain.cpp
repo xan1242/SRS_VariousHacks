@@ -65,8 +65,8 @@ void ProcessEngineAnimation(uint32_t* playerCar)
 
 bool IsAltF4Down()
 {
-	return ((GetAsyncKeyState(VK_MENU) & 0x8000) ||
-		(GetAsyncKeyState(VK_LMENU) & 0x8000) &&
+	return (((GetAsyncKeyState(VK_MENU) & 0x8000) ||
+		(GetAsyncKeyState(VK_LMENU) & 0x8000)) &&
 		(GetAsyncKeyState(VK_F4) & 0x8000));
 }
 
