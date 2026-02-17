@@ -1,0 +1,3 @@
+[submodule "includes/fini"]
+	path = includes/fini
+	url = https://github.com/xan1242/fINI
