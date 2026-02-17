@@ -34,6 +34,7 @@
 #endif
 
 //
+#include <memory>
 #include "injector.hpp"
 
 namespace injector
