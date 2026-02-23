@@ -257,6 +257,16 @@ void Init()
 		injector::MakeNOP(0x61DEEB, 5);
 	}
 
+	if (cfg.misc.DisableDInputSetCooperativeLevel_Keyboard)
+	{
+		injector::MakeJMP(0x61DB5A, 0x61DB7D);
+	}
+
+	if (cfg.misc.DisableDInputSetCooperativeLevel_Mouse)
+	{
+		injector::MakeJMP(0x61DC18, 0x61DC3B);
+	}
+
 	if (cfg.bootflow.SkipIntroVideo)
 	{
 		injector::MakeJMP(0x5B665E, 0x5B6709);

@@ -57,6 +57,8 @@ Config& Config::ReadConfig(const std::filesystem::path& iniPath)
 	ini.ReadValue(FINI_HASH("HotKeys"), FINI_HASH("ToggleDrawHUD"), sConfig.hotkeys.vkToggleDrawHUD);
 
 	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("DisableMinimizeOnAltTab"), sConfig.misc.DisableMinimizeOnAltTab);
+	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("DisableDInputSetCooperativeLevel_Keyboard"), sConfig.misc.DisableDInputSetCooperativeLevel_Keyboard);
+	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("DisableDInputSetCooperativeLevel_Mouse"), sConfig.misc.DisableDInputSetCooperativeLevel_Mouse);
 	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("FixAltF4"),                sConfig.misc.FixAltF4);
 	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("Console"),                 sConfig.misc.Console);
 

@@ -1,6 +1,7 @@
 #include "framework.h"
 #include "WindowedMode.hpp"
 #include "includes/injector/injector.hpp"
+#include "WndProcWalker.hpp"
 
 #include <tuple>
 #include <d3d9.h>
@@ -186,6 +187,8 @@ namespace WindowedMode
 			//printf("style: 0x%X\n", GetWindowLong(GameHWND, GWL_STYLE));
 			//printf("exstyle: 0x%X\n", GetWindowLong(GameHWND, GWL_EXSTYLE));
 
+			WndProcWalker::Init(GameHWND);
+
 			if (cfg.mode <= WNDMODE_DEFAULT)
 				YeetEdge();
 			else
@@ -296,12 +299,31 @@ namespace WindowedMode
 		//}
 	}
 
+	HCURSOR WINAPI LoadCursorA_Hook(HINSTANCE hInstance, LPCSTR lpCursorName)
+	{
+		return LoadCursor(hInstance, IDC_ARROW);
+	}
+
 #pragma runtime_checks( "", restore )
 
 	//static uintptr_t GetBranchDestination_FarJmp(uintptr_t at)
 	//{
 	//	return **reinterpret_cast<uintptr_t**>(at + 2);
 	//}
+
+	static LRESULT CALLBACK FixUpWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	{
+		switch (msg)
+		{
+			// unblock sys commands...
+			case WM_SYSCOMMAND:
+				DefWindowProcA(hWnd, msg, wParam, lParam);
+				return TRUE;
+				break;
+		}
+
+		return FALSE;
+	}
 
 	void Init(WindowedModes mode)
 	{
@@ -354,6 +376,8 @@ namespace WindowedMode
 		//p_CWnd_Default_2 = static_cast<uintptr_t>(injector::GetBranchDestination(loc_403DC5));
 		//injector::MakeCALL(loc_403DC5, CWnd_Default_hook_OnWindowCreate2);
 
+		WndProcWalker::AddWndProc(FixUpWndProc);
+
 		WndConfig& cfg = WndConfig::Get();
 		cfg.mode = mode;
 		switch (mode)
@@ -370,6 +394,32 @@ namespace WindowedMode
 				break;
 			default:
 				break;
+		}
+
+		if (mode != WNDMODE_DEFAULT)
+		{
+			// disable minimize on alt-tab
+			injector::MakeRET(0x403B70, 8);
+			// yeet the print spam
+			injector::MakeNOP(0x61DDA7, 5);
+			injector::MakeNOP(0x61DDDC, 5);
+			injector::MakeNOP(0x61DEEB, 5);
+
+			// disable mouse cursor hiding/clipping...
+			injector::MakeNOP(0x4041D1, 2);
+			injector::MakeNOP(0x4041D5, 6);
+
+			injector::MakeNOP(0x40427E, 8);
+
+			injector::MakeNOP(0x4053C1, 2);
+			injector::MakeNOP(0x4053C8, 6);
+
+			injector::MakeNOP(0x403C78, 6);
+			injector::MakeCALL(0x403C78, LoadCursorA_Hook);
+
+			// skip dinput8 SetCooperativeLevels
+			injector::MakeJMP(0x61DB5A, 0x61DB7D);
+			injector::MakeJMP(0x61DC18, 0x61DC3B);
 		}
 
 	}

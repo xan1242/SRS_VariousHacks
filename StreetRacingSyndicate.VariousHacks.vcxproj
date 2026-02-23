@@ -101,6 +101,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="WidescreenFix.hpp" />
     <ClInclude Include="WindowedMode.hpp" />
+    <ClInclude Include="WndProcWalker.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Config.cpp" />

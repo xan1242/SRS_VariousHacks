@@ -78,6 +78,8 @@ struct Config
 	struct Misc
 	{
 		bool DisableMinimizeOnAltTab = false;
+		bool DisableDInputSetCooperativeLevel_Keyboard = true;
+		bool DisableDInputSetCooperativeLevel_Mouse = false;
 		bool FixAltF4 = true;
 		bool Console = false;
 	} misc;
