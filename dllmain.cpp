@@ -1,23 +1,11 @@
 #include "framework.h"
 #include "includes/injector/injector.hpp"
 
-#define FINI_CRLF_NEWLINE
-#define FINI_WRITEINTBOOLS
-#define FINI_SEMICOLONSONLY
-#define FINI_NOINLINECOMMENTSPARSE
-#define FINI_NOPRECEDINGCOMMENTSPARSE
-#define FINI_USEHASH
-#define FINI_READONLY
-#include "includes/fini/fini.hpp"
+#include "Config.hpp"
 #include "includes/ModPath.hpp"
 #include <filesystem>
 
-int hk_ToggleHood;
-int hk_ToggleDrawHUD;
 bool ToggleHood = false;
-bool CopCarInDealer = false;
-bool ShowHiddenVinyl = false;
-bool FixAltF4 = true;
 
 bool bAltF4OldState = false;
 
@@ -72,32 +60,33 @@ bool IsAltF4Down()
 
 void MainLoop()
 {
+	Config& cfg = Config::Get();
 	ProcessEngineAnimation(Game::RaceCars[0]);
 	ProcessEngineAnimation(Game::GarageCar[0]);
 
-	if (GetAsyncKeyState(hk_ToggleHood) & 1)
+	if (GetAsyncKeyState(cfg.hotkeys.vkToggleHood) & 1)
 	{
 		ToggleHood = !ToggleHood;
 	}
 
-	if (GetAsyncKeyState(hk_ToggleDrawHUD) & 1)
+	if (GetAsyncKeyState(cfg.hotkeys.vkToggleDrawHUD) & 1)
 	{
 		*Game::DrawHUD = !*Game::DrawHUD;
 	}
 
-	if (CopCarInDealer)
+	if (cfg.gameplay.CopCarInDealer)
 	{
 		*Game::CopCarUnlocked = true;
 		*Game::CopCarVisible = true;
 	}
 
-	if (ShowHiddenVinyl)
+	if (cfg.gameplay.ShowHiddenVinyl)
 	{
 		Game::SetShowHiddenVinyl();
 	}
 
 	// hacky workaround for now -- game uses MFC and some weird shenanigans...
-	if (FixAltF4)
+	if (cfg.misc.FixAltF4)
 	{
 		bool bAltF4State = IsAltF4Down();
 		
@@ -180,18 +169,6 @@ float __stdcall ParseFloatToken_AssistWeight()
 	return AssistWeight;
 }
 
-enum SteeringAssistType : int32_t
-{
-	STEERINGASSIST_UNK = -1,
-	STEERINGASSIST_DEFAULT,
-	STEERINGASSIST_MIN = STEERINGASSIST_DEFAULT,
-	STEERINGASSIST_NONE,
-	STEERINGASSIST_SPORTS,
-	STEERINGASSIST_RACER,
-	STEERINGASSIST_MAX = STEERINGASSIST_RACER,
-	STEERINGASSIST_NUM,
-};
-
 SteeringAssistType AssistType = STEERINGASSIST_UNK;
 uintptr_t p_ParseAssistType;
 float __stdcall ParseAssistType_Hook()
@@ -210,8 +187,7 @@ float __stdcall ParseAssistType_Hook()
 
 void Init()
 {
-	fINI::Reader ini;
-	int iniReadError = ini.Open(ModPath::GetThisModulePath<std::filesystem::path>().replace_extension("ini"));
+	Config& cfg = Config::ReadConfig(ModPath::GetThisModulePath<std::filesystem::path>().replace_extension("ini"));
 	
 	// patch window destructor to fix game closing on window close
 	constexpr size_t vtidx_CWnd_Destructor = 1;
@@ -220,95 +196,39 @@ void Init()
 	p_CWnd_Destructor = CWnd_vtbl[vtidx_CWnd_Destructor];
 	injector::WriteMemory(&CWnd_vtbl[vtidx_CWnd_Destructor], &CWnd_Destructor_Hook, true);
 	
-	if (iniReadError)
-		return;
 
-	bool SkipIntroVideo = true;
-	bool SkipLegalScreens = true;
-	bool RoadCarReflections = false;
-	bool HighestLods = false;
-	bool InfiniteNosFlame = false;
-	bool MoreCameraModes = false;
-	bool NoDecalRestrictions = false;
-	bool NoEngineRestrictions = false;
-	bool Console = false;
-	bool DisableMinimizeOnAltTab = false;
-	int MaxRespect = 250;
-	int NumPaintColors = 21;
-
-	int nosColorRed = 0;
-	int nosColorGreen = 0;
-	int nosColorBlue = 0;
-	int nosColorAlpha = 0;
-
-	bool NoABS = false;
-
-
-	ini.ReadValue(FINI_HASH("BootFlow"), FINI_HASH("SkipIntroVideo"), SkipIntroVideo);
-	ini.ReadValue(FINI_HASH("BootFlow"), FINI_HASH("SkipLegalScreens"), SkipLegalScreens);
-
-	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("RoadCarReflections"), RoadCarReflections);
-	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("HighestLods"), HighestLods);
-	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("InfiniteNosFlame"), InfiniteNosFlame);
-
-	ini.ReadValue(FINI_HASH("NosFlame"), FINI_HASH("Red"), nosColorRed);
-	ini.ReadValue(FINI_HASH("NosFlame"), FINI_HASH("Green"), nosColorGreen);
-	ini.ReadValue(FINI_HASH("NosFlame"), FINI_HASH("Blue"), nosColorBlue);
-	ini.ReadValue(FINI_HASH("NosFlame"), FINI_HASH("Alpha"), nosColorAlpha);
-
-	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("MoreCameraModes"), MoreCameraModes);
-	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("CopCarInDealer"), CopCarInDealer);
-	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("MaxRespect"), MaxRespect);
-	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("NoDecalRestrictions"), NoDecalRestrictions);
-	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("ShowHiddenVinyl"), ShowHiddenVinyl);
-	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("NoEngineRestrictions"), NoEngineRestrictions);
-	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("NumPaintColors"), NumPaintColors);
-
-	ini.ReadValue(FINI_HASH("Assists"), FINI_HASH("NoABS"), NoABS);
-
-	ini.ReadValue(FINI_HASH("SteeringAssists"), FINI_HASH("YawSteerAssist"), YawSteerAssist);
-	ini.ReadValue(FINI_HASH("SteeringAssists"), FINI_HASH("AssistWeight"), AssistWeight);
-	ini.ReadEnum(FINI_HASH("SteeringAssists"), FINI_HASH("AssistType"), AssistType, STEERINGASSIST_MIN, STEERINGASSIST_MAX);
-
-	ini.ReadValue(FINI_HASH("HotKeys"), FINI_HASH("ToggleHood"), hk_ToggleHood);
-	ini.ReadValue(FINI_HASH("HotKeys"), FINI_HASH("ToggleDrawHUD"), hk_ToggleDrawHUD);
-
-	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("DisableMinimizeOnAltTab"), DisableMinimizeOnAltTab);
-	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("FixAltF4"), FixAltF4);
-	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("Console"), Console);
-
-	if (RoadCarReflections)
+	if (cfg.graphics.RoadCarReflections)
 	{
 		injector::WriteMemory<uint8_t>(0x006834A7, 0, true);
 	}
 
 
-	if (HighestLods)
+	if (cfg.graphics.HighestLods)
 	{
 		injector::MakeNOP(0x00551B12, 2, true);
 	}
 
-	if (InfiniteNosFlame)
+	if (cfg.graphics.InfiniteNosFlame)
 	{
 		injector::MakeNOP(0x006A86C4, 2, true);
 	}
 
-	if (MoreCameraModes)
+	if (cfg.gameplay.MoreCameraModes)
 	{
 		injector::MakeJMP(0x00523659, InitCameraModesCave, true);
 	}
 
-	if (NoDecalRestrictions)
+	if (cfg.gameplay.NoDecalRestrictions)
 	{
 		injector::WriteMemory<uint8_t>(0x0055E256, 0xEB, true);
 	}
 
-	if (NoEngineRestrictions)
+	if (cfg.gameplay.NoEngineRestrictions)
 	{
 		injector::WriteMemory<uint16_t>(0x0050ED7B, 0x01B0, true);
 	}
 
-	if (Console)
+	if (cfg.misc.Console)
 	{
 		injector::MakeJMP(0x006227A0, printf, true);
 
@@ -318,7 +238,7 @@ void Init()
 		freopen("CONOUT$", "wb", stderr);
 	}
 
-	if (DisableMinimizeOnAltTab)
+	if (cfg.misc.DisableMinimizeOnAltTab)
 	{
 		injector::MakeRET(0x403B70, 8);
 		// yeet the print spam
@@ -327,48 +247,50 @@ void Init()
 		injector::MakeNOP(0x61DEEB, 5);
 	}
 
-	if (SkipIntroVideo)
+	if (cfg.bootflow.SkipIntroVideo)
 	{
 		injector::MakeJMP(0x5B665E, 0x5B6709);
 	}
 
-	if (SkipLegalScreens)
+	if (cfg.bootflow.SkipLegalScreens)
 	{
 		injector::MakeNOP(0x55A30A, 5);
 	}
 
-	if (NoABS)
+	if (cfg.gameplay.assists.NoABS)
 	{
 		injector::MakeRangedNOP(0x6D0500, 0x006D0508);
 	}
 
 
-	injector::WriteMemory(Game::MaxRespect1, MaxRespect, true);
-	injector::WriteMemory(Game::MaxRespect2, MaxRespect, true);
-	injector::WriteMemory(Game::MaxRespect3, MaxRespect, true);
-	injector::WriteMemory(Game::MaxRespect4, MaxRespect, true);
+	injector::WriteMemory(Game::MaxRespect1, cfg.gameplay.MaxRespect, true);
+	injector::WriteMemory(Game::MaxRespect2, cfg.gameplay.MaxRespect, true);
+	injector::WriteMemory(Game::MaxRespect3, cfg.gameplay.MaxRespect, true);
+	injector::WriteMemory(Game::MaxRespect4, cfg.gameplay.MaxRespect, true);
 
-	injector::WriteMemory(0x005CDA26, NumPaintColors * 20, true);
+	injector::WriteMemory(0x005CDA26, cfg.gameplay.NumPaintColors * 20, true);
 
-	injector::WriteMemory(0x006A6CD4, nosColorRed, true);
-	injector::WriteMemory(0x006A6CCF, nosColorGreen, true);
-	injector::WriteMemory(0x006A6CC3, nosColorBlue, true);
-	injector::WriteMemory(0x006A6CBE, nosColorAlpha, true);
+	injector::WriteMemory(0x006A6CD4, cfg.graphics.nosflame.ColorRed, true);
+	injector::WriteMemory(0x006A6CCF, cfg.graphics.nosflame.ColorGreen, true);
+	injector::WriteMemory(0x006A6CC3, cfg.graphics.nosflame.ColorBlue, true);
+	injector::WriteMemory(0x006A6CBE, cfg.graphics.nosflame.ColorAlpha, true);
 
 	uintptr_t loc_6E5B63 = 0x6E5B63;
 	p_ParseFloatToken_YawSteerAssist = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B63));
 	injector::MakeCALL(loc_6E5B63, ParseFloatToken_YawSteerAssist);
+	YawSteerAssist = cfg.gameplay.assists.steering.YawSteerAssist;
 
 	uintptr_t loc_6E5B23 = 0x6E5B23;
 	p_ParseFloatToken_AssistWeight = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B23));
 	injector::MakeCALL(loc_6E5B23, ParseFloatToken_AssistWeight);
+	AssistWeight = cfg.gameplay.assists.steering.AssistWeight;
 
 	uintptr_t loc_6E5A81 = 0x6E5A81;
 	p_ParseAssistType = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5A81));
 	injector::MakeCALL(loc_6E5A81, ParseAssistType_Hook);
+	AssistType = cfg.gameplay.assists.steering.AssistType;
 
 	injector::MakeCALL(0x004044B8, MainLoop, true);
-
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  reason, LPVOID lpReserved)
