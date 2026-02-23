@@ -108,7 +108,7 @@ namespace WidescreenFix
         
         uintptr_t loc_4BC66B = 0x4BC66B;
         injector::WriteMemory(loc_4BC66B + 2, &f3DScale, true);
-
+        
         // #TODO: put a pattern detector that doesn't suck (everywhere in code)
         std::vector<uintptr_t> addrs;
         addrs.push_back(0x553DFC);
@@ -116,7 +116,7 @@ namespace WidescreenFix
         addrs.push_back(0x553E57);
         addrs.push_back(0x5562B3);
         addrs.push_back(0x567B5C);
-
+        
         for (uintptr_t& a : addrs)
         {
             injector::WriteMemory(a + 6, f640Scale, true);
@@ -136,7 +136,6 @@ namespace WidescreenFix
         
         if (bFixHUD)
         {
-            Screen.fHudScale = Screen.fAspectRatio / (4.0f / 3.0f);
             uintptr_t loc_4CB3C5 = 0x4CB3C5;
             struct HudScaleHook
             {
