@@ -181,8 +181,12 @@ namespace WindowedMode
 		if (cfg.mode <= WNDMODE_DEFAULT)
 		{
 			retVal = reinterpret_cast<BOOL(__thiscall*)(uintptr_t, DWORD, LPCSTR, LPCSTR, DWORD, const LPRECT, uintptr_t, uint32_t, LPVOID)>(p_CWnd_CreateEx)(that, dwExStyle, lpszClassName, lpszWindowName, dwStyle, rect, parent, unk, lpParam);
-			GameHWND = GetHWNDFromCWnd(that);
-			YeetEdge();
+			if (retVal)
+			{
+				GameHWND = GetHWNDFromCWnd(that);
+				YeetEdge();
+			}
+			return retVal;
 		}
 
 		retVal = reinterpret_cast<BOOL(__thiscall*)(uintptr_t, DWORD, LPCSTR, LPCSTR, DWORD, const LPRECT, uintptr_t, uint32_t, LPVOID)>(p_CWnd_CreateEx)(that, dwExStyle, lpszClassName, lpszWindowName, dwStyle, rect, parent, unk, lpParam);
