@@ -308,9 +308,9 @@ void Init()
 	injector::WriteMemory(0x006A6CC3, cfg.graphics.effects.nosflame.ColorBlue, true);
 	injector::WriteMemory(0x006A6CBE, cfg.graphics.effects.nosflame.ColorAlpha, true);
 
-	uintptr_t loc_6E5B63 = 0x6E5B63;
-	p_ParseFloatToken_YawSteerAssist = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B63));
-	injector::MakeCALL(loc_6E5B63, ParseFloatToken_YawSteerAssist);
+	uintptr_t loc_6E5B43 = 0x6E5B43;
+	p_ParseFloatToken_YawSteerAssist = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B43));
+	injector::MakeCALL(loc_6E5B43, ParseFloatToken_YawSteerAssist);
 	YawSteerAssist = cfg.gameplay.assists.steering.YawSteerAssist;
 
 	uintptr_t loc_6E5B23 = 0x6E5B23;
