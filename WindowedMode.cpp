@@ -205,17 +205,27 @@ namespace WindowedMode
 		uintptr_t that;
 		_asm mov that, ecx
 
+		WndConfig& cfg = WndConfig::Get();
+
 		cs.style = GetDesiredWindowStyle();
 		cs.dwExStyle = GetDesiredWindowExStyle();
 
 		auto [WindowPosX, WindowPosY, newWidth, newHeight] = beforeCreateWindow(cs.cx, cs.cy);
 		cs.x = WindowPosX;
 		cs.y = WindowPosY;
-
-		RECT rc = { WindowPosX, WindowPosY, newWidth + WindowPosX, newHeight + WindowPosY };
-		AdjustWindowRectEx(&rc, cs.style, FALSE, cs.dwExStyle | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE); // WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE ARE NEEDED HERE FOR CALCULATIONS (we'll yeet them afterwards!) THANK YOU EWWTECHNYX FOR USING MFC!!!
-		cs.cx = rc.right - rc.left;
-		cs.cy = rc.bottom - rc.top;
+		
+		if (!cfg.bBorderlessWindowed)
+		{
+			RECT rc = { WindowPosX, WindowPosY, newWidth + WindowPosX, newHeight + WindowPosY };
+			AdjustWindowRectEx(&rc, cs.style, FALSE, cs.dwExStyle | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE); // WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE ARE NEEDED HERE FOR CALCULATIONS (we'll yeet them afterwards!) THANK YOU EWWTECHNYX FOR USING MFC!!!
+			cs.cx = rc.right - rc.left;
+			cs.cy = rc.bottom - rc.top;
+		}
+		else
+		{
+			cs.cx = newWidth;
+			cs.cy = newHeight;
+		}
 
 
 		return reinterpret_cast<BOOL(__thiscall*)(uintptr_t, CREATESTRUCT&)>(p_CWnd_PreCreateWindow)(that, cs);
@@ -372,8 +382,8 @@ namespace WindowedMode
 
 		//uintptr_t loc_403DB9 = 0x403DB9;
 		//p_CWnd_ShowWindow = static_cast<uintptr_t>(injector::GetBranchDestination(loc_403DB9));
-
-		injector::MakeJMP(0x403D40, SomethingOnSendMessage);
+		uintptr_t loc_403D40 = 0x403D40;
+		injector::MakeJMP(loc_403D40, SomethingOnSendMessage);
 
 		//uintptr_t loc_403DA4 = 0x403DA4;
 		//p_CWnd_Default_1 = static_cast<uintptr_t>(injector::GetBranchDestination(loc_403DA4));
