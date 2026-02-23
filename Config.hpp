@@ -25,19 +25,36 @@ struct Config
 		bool SkipLegalScreens = true;
 	} bootflow;
 
+
 	struct Graphics
 	{
-		bool RoadCarReflections = false;
-		bool HighestLods = false;
-		bool InfiniteNosFlame = false;
-
-		struct NosFlame
+		struct Window
 		{
-			int ColorRed = 0;
-			int ColorGreen = 0;
-			int ColorBlue = 0;
-			int ColorAlpha = 0;
-		} nosflame;
+			uint32_t Width = 0;
+			uint32_t Height = 0;
+		} window;
+
+		struct AspectRatio
+		{
+			bool FixHUD = true;
+			bool FixFOV = true;
+		} aspectratio;
+
+		struct Effects
+		{
+			bool RoadCarReflections = false;
+			bool HighestLods = false;
+			bool InfiniteNosFlame = false;
+
+			struct NosFlame
+			{
+				int ColorRed = 0;
+				int ColorGreen = 0;
+				int ColorBlue = 0;
+				int ColorAlpha = 0;
+			} nosflame;
+		} effects;
+
 	} graphics;
 
 	struct Gameplay

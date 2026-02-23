@@ -22,14 +22,20 @@ Config& Config::ReadConfig(const std::filesystem::path& iniPath)
 	ini.ReadValue(FINI_HASH("BootFlow"), FINI_HASH("SkipIntroVideo"),   sConfig.bootflow.SkipIntroVideo);
 	ini.ReadValue(FINI_HASH("BootFlow"), FINI_HASH("SkipLegalScreens"), sConfig.bootflow.SkipLegalScreens);
 
-	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("RoadCarReflections"), sConfig.graphics.RoadCarReflections);
-	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("HighestLods"),        sConfig.graphics.HighestLods);
-	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("InfiniteNosFlame"),   sConfig.graphics.InfiniteNosFlame);
+	ini.ReadValue(FINI_HASH("Graphics.Window"), FINI_HASH("Width"), sConfig.graphics.window.Width);
+	ini.ReadValue(FINI_HASH("Graphics.Window"), FINI_HASH("Height"), sConfig.graphics.window.Height);
 
-	ini.ReadValue(FINI_HASH("Graphics.NosFlame"), FINI_HASH("ColorRed"),   sConfig.graphics.nosflame.ColorRed);
-	ini.ReadValue(FINI_HASH("Graphics.NosFlame"), FINI_HASH("ColorGreen"), sConfig.graphics.nosflame.ColorGreen);
-	ini.ReadValue(FINI_HASH("Graphics.NosFlame"), FINI_HASH("ColorBlue"),  sConfig.graphics.nosflame.ColorBlue);
-	ini.ReadValue(FINI_HASH("Graphics.NosFlame"), FINI_HASH("ColorAlpha"), sConfig.graphics.nosflame.ColorAlpha);
+	ini.ReadValue(FINI_HASH("Graphics.AspectRatio"), FINI_HASH("FixHUD"), sConfig.graphics.aspectratio.FixHUD);
+	ini.ReadValue(FINI_HASH("Graphics.AspectRatio"), FINI_HASH("FixFOV"), sConfig.graphics.aspectratio.FixFOV);
+
+	ini.ReadValue(FINI_HASH("Graphics.Effects"), FINI_HASH("RoadCarReflections"), sConfig.graphics.effects.RoadCarReflections);
+	ini.ReadValue(FINI_HASH("Graphics.Effects"), FINI_HASH("HighestLods"),        sConfig.graphics.effects.HighestLods);
+	ini.ReadValue(FINI_HASH("Graphics.Effects"), FINI_HASH("InfiniteNosFlame"),   sConfig.graphics.effects.InfiniteNosFlame);
+
+	ini.ReadValue(FINI_HASH("Graphics.Effects.NosFlame"), FINI_HASH("ColorRed"),   sConfig.graphics.effects.nosflame.ColorRed);
+	ini.ReadValue(FINI_HASH("Graphics.Effects.NosFlame"), FINI_HASH("ColorGreen"), sConfig.graphics.effects.nosflame.ColorGreen);
+	ini.ReadValue(FINI_HASH("Graphics.Effects.NosFlame"), FINI_HASH("ColorBlue"),  sConfig.graphics.effects.nosflame.ColorBlue);
+	ini.ReadValue(FINI_HASH("Graphics.Effects.NosFlame"), FINI_HASH("ColorAlpha"), sConfig.graphics.effects.nosflame.ColorAlpha);
 
 	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("MoreCameraModes"),      sConfig.gameplay.MoreCameraModes);
 	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("CopCarInDealer"),       sConfig.gameplay.CopCarInDealer);

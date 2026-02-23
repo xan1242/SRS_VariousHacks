@@ -2,6 +2,8 @@
 #include "includes/injector/injector.hpp"
 
 #include "Config.hpp"
+#include "WidescreenFix.hpp"
+
 #include "includes/ModPath.hpp"
 #include <filesystem>
 
@@ -189,6 +191,11 @@ void Init()
 {
 	Config& cfg = Config::ReadConfig(ModPath::GetThisModulePath<std::filesystem::path>().replace_extension("ini"));
 	
+	WidescreenFix::SetRes(cfg.graphics.window.Width, cfg.graphics.window.Height);
+	WidescreenFix::SetFixFOV(cfg.graphics.aspectratio.FixFOV);
+	WidescreenFix::SetFixHUD(cfg.graphics.aspectratio.FixHUD);
+	WidescreenFix::Init();
+
 	// patch window destructor to fix game closing on window close
 	constexpr size_t vtidx_CWnd_Destructor = 1;
 	uintptr_t loc_403B28 = 0x403B28;
@@ -197,18 +204,18 @@ void Init()
 	injector::WriteMemory(&CWnd_vtbl[vtidx_CWnd_Destructor], &CWnd_Destructor_Hook, true);
 	
 
-	if (cfg.graphics.RoadCarReflections)
+	if (cfg.graphics.effects.RoadCarReflections)
 	{
 		injector::WriteMemory<uint8_t>(0x006834A7, 0, true);
 	}
 
 
-	if (cfg.graphics.HighestLods)
+	if (cfg.graphics.effects.HighestLods)
 	{
 		injector::MakeNOP(0x00551B12, 2, true);
 	}
 
-	if (cfg.graphics.InfiniteNosFlame)
+	if (cfg.graphics.effects.InfiniteNosFlame)
 	{
 		injector::MakeNOP(0x006A86C4, 2, true);
 	}
@@ -270,10 +277,10 @@ void Init()
 
 	injector::WriteMemory(0x005CDA26, cfg.gameplay.NumPaintColors * 20, true);
 
-	injector::WriteMemory(0x006A6CD4, cfg.graphics.nosflame.ColorRed, true);
-	injector::WriteMemory(0x006A6CCF, cfg.graphics.nosflame.ColorGreen, true);
-	injector::WriteMemory(0x006A6CC3, cfg.graphics.nosflame.ColorBlue, true);
-	injector::WriteMemory(0x006A6CBE, cfg.graphics.nosflame.ColorAlpha, true);
+	injector::WriteMemory(0x006A6CD4, cfg.graphics.effects.nosflame.ColorRed, true);
+	injector::WriteMemory(0x006A6CCF, cfg.graphics.effects.nosflame.ColorGreen, true);
+	injector::WriteMemory(0x006A6CC3, cfg.graphics.effects.nosflame.ColorBlue, true);
+	injector::WriteMemory(0x006A6CBE, cfg.graphics.effects.nosflame.ColorAlpha, true);
 
 	uintptr_t loc_6E5B63 = 0x6E5B63;
 	p_ParseFloatToken_YawSteerAssist = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B63));
