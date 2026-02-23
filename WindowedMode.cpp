@@ -298,10 +298,10 @@ namespace WindowedMode
 
 #pragma runtime_checks( "", restore )
 
-	static uintptr_t GetBranchDestination_FarJmp(uintptr_t at)
-	{
-		return **reinterpret_cast<uintptr_t**>(at + 2);
-	}
+	//static uintptr_t GetBranchDestination_FarJmp(uintptr_t at)
+	//{
+	//	return **reinterpret_cast<uintptr_t**>(at + 2);
+	//}
 
 	void Init(WindowedModes mode)
 	{
