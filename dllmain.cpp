@@ -4,6 +4,8 @@
 #include "Config.hpp"
 #include "WidescreenFix.hpp"
 #include "WindowedMode.hpp"
+#include "MainLoop.hpp"
+#include "GameExit.hpp"
 
 #include "includes/ModPath.hpp"
 #include <filesystem>
@@ -61,7 +63,7 @@ bool IsAltF4Down()
 		(GetAsyncKeyState(VK_F4) & 0x8000));
 }
 
-void MainLoop()
+void OnMainLoop(void*, void*)
 {
 	Config& cfg = Config::Get();
 	ProcessEngineAnimation(Game::RaceCars[0]);
@@ -86,6 +88,22 @@ void MainLoop()
 	if (cfg.gameplay.ShowHiddenVinyl)
 	{
 		Game::SetShowHiddenVinyl();
+	}
+
+	// hacky workaround for now -- game uses MFC and some weird shenanigans...
+	if (cfg.misc.FixAltF4)
+	{
+		bool bAltF4State = IsAltF4Down();
+
+		if (bAltF4State != bAltF4OldState)
+		{
+			if (!bAltF4State) // negative edge
+			{
+				GameExit::Exit();
+			}
+		}
+
+		bAltF4OldState = bAltF4State;
 	}
 }
 
@@ -123,7 +141,8 @@ void __stdcall CWnd_Destructor_Hook(uint32_t deleteFlag)
 
 	reinterpret_cast<void(__thiscall*)(uintptr_t, uint32_t)>(p_CWnd_Destructor)(that, deleteFlag);
 
-	PostQuitMessage(0);
+	//PostQuitMessage(0);
+	GameExit::Exit();
 }
 
 
@@ -170,39 +189,6 @@ float __stdcall ParseAssistType_Hook()
 		*reinterpret_cast<SteeringAssistType*>(that + 0x74) = AssistType;
 }
 
-uintptr_t p_MainLoopFunc;
-bool __stdcall MainLoop_Hook()
-{
-	uintptr_t that;
-	_asm mov that, ecx
-
-	// #TODO: implement a loop walker...
-
-	bool retVal = reinterpret_cast<bool(__thiscall*)(uintptr_t)>(p_MainLoopFunc)(that);
-
-	MainLoop();
-
-	Config& cfg = Config::Get();
-
-	// hacky workaround for now -- game uses MFC and some weird shenanigans...
-	if (cfg.misc.FixAltF4)
-	{
-		bool bAltF4State = IsAltF4Down();
-
-		if (bAltF4State != bAltF4OldState)
-		{
-			if (!bAltF4State) // negative edge
-			{
-				retVal = true; // ensure a graceful exit...
-			}
-		}
-
-		bAltF4OldState = bAltF4State;
-	}
-
-	return retVal;
-}
-
 #pragma runtime_checks( "", restore )
 
 
@@ -216,6 +202,9 @@ void Init()
 	WidescreenFix::Init();
 
 	WindowedMode::Init(cfg.graphics.window.WindowMode);
+
+	MainLoop::Init();
+	GameExit::Init();
 
 	// patch window destructor to fix game closing on window close
 	constexpr size_t vtidx_CWnd_Destructor = 1;
@@ -334,10 +323,7 @@ void Init()
 	injector::MakeCALL(loc_6E5A81, ParseAssistType_Hook);
 	AssistType = cfg.gameplay.assists.steering.AssistType;
 
-	//injector::MakeCALL(0x004044B8, MainLoop, true);
-	uintptr_t loc_4053F5 = 0x4053F5;
-	p_MainLoopFunc = static_cast<uintptr_t>(injector::GetBranchDestination(loc_4053F5));
-	injector::MakeCALL(loc_4053F5, MainLoop_Hook);
+	MainLoop::Walker::AddToLoop(OnMainLoop);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  reason, LPVOID lpReserved)

@@ -99,6 +99,8 @@
   <ItemGroup>
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GameExit.hpp" />
+    <ClInclude Include="MainLoop.hpp" />
     <ClInclude Include="WidescreenFix.hpp" />
     <ClInclude Include="WindowedMode.hpp" />
     <ClInclude Include="WndProcWalker.hpp" />
@@ -106,6 +108,8 @@
   <ItemGroup>
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="GameExit.cpp" />
+    <ClCompile Include="MainLoop.cpp" />
     <ClCompile Include="WidescreenFix.cpp" />
     <ClCompile Include="WindowedMode.cpp" />
   </ItemGroup>

@@ -26,6 +26,12 @@
     <ClInclude Include="WndProcWalker.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MainLoop.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameExit.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -38,6 +44,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WindowedMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainLoop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameExit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
