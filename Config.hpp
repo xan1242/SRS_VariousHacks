@@ -5,18 +5,6 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-enum SteeringAssistType : int32_t
-{
-	STEERINGASSIST_UNK = -1,
-	STEERINGASSIST_DEFAULT,
-	STEERINGASSIST_MIN = STEERINGASSIST_DEFAULT,
-	STEERINGASSIST_NONE,
-	STEERINGASSIST_SPORTS,
-	STEERINGASSIST_RACER,
-	STEERINGASSIST_MAX = STEERINGASSIST_RACER,
-	STEERINGASSIST_NUM,
-};
-
 struct Config
 {
 	struct BootFlow
@@ -25,13 +13,14 @@ struct Config
 		bool SkipLegalScreens = true;
 	} bootflow;
 
-
 	struct Graphics
 	{
 		struct Window
 		{
 			uint32_t Width = 0;
 			uint32_t Height = 0;
+			WindowedModes WindowMode = WNDMODE_DEFAULT;
+			bool bAlwaysOnTop = false;
 		} window;
 
 		struct AspectRatio

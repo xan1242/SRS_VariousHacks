@@ -24,6 +24,8 @@ Config& Config::ReadConfig(const std::filesystem::path& iniPath)
 
 	ini.ReadValue(FINI_HASH("Graphics.Window"), FINI_HASH("Width"), sConfig.graphics.window.Width);
 	ini.ReadValue(FINI_HASH("Graphics.Window"), FINI_HASH("Height"), sConfig.graphics.window.Height);
+	ini.ReadEnum(FINI_HASH("Graphics.Window"), FINI_HASH("WindowedMode"), sConfig.graphics.window.WindowMode, WindowedModes::WNDMODE_MIN, WindowedModes::WNDMODE_MAX);
+	ini.ReadValue(FINI_HASH("Graphics.Window"), FINI_HASH("AlwaysOnTop"), sConfig.graphics.window.bAlwaysOnTop);
 
 	ini.ReadValue(FINI_HASH("Graphics.AspectRatio"), FINI_HASH("FixHUD"), sConfig.graphics.aspectratio.FixHUD);
 	ini.ReadValue(FINI_HASH("Graphics.AspectRatio"), FINI_HASH("FixFOV"), sConfig.graphics.aspectratio.FixFOV);

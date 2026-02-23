@@ -100,11 +100,13 @@
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="WidescreenFix.hpp" />
+    <ClInclude Include="WindowedMode.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="WidescreenFix.cpp" />
+    <ClCompile Include="WindowedMode.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

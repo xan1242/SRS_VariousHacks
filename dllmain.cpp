@@ -3,6 +3,7 @@
 
 #include "Config.hpp"
 #include "WidescreenFix.hpp"
+#include "WindowedMode.hpp"
 
 #include "includes/ModPath.hpp"
 #include <filesystem>
@@ -195,6 +196,8 @@ void Init()
 	WidescreenFix::SetFixFOV(cfg.graphics.aspectratio.FixFOV);
 	WidescreenFix::SetFixHUD(cfg.graphics.aspectratio.FixHUD);
 	WidescreenFix::Init();
+
+	WindowedMode::Init(cfg.graphics.window.WindowMode);
 
 	// patch window destructor to fix game closing on window close
 	constexpr size_t vtidx_CWnd_Destructor = 1;
