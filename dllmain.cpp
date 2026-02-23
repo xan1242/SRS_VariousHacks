@@ -87,23 +87,8 @@ void MainLoop()
 	{
 		Game::SetShowHiddenVinyl();
 	}
-
-	// hacky workaround for now -- game uses MFC and some weird shenanigans...
-	if (cfg.misc.FixAltF4)
-	{
-		bool bAltF4State = IsAltF4Down();
-		
-		if (bAltF4State != bAltF4OldState)
-		{
-			if (!bAltF4State) // negative edge
-			{
-				PostQuitMessage(0);
-			}
-		}
-
-		bAltF4OldState = bAltF4State;
-	}
 }
+
 
 void InitCameraModes()
 {
@@ -183,6 +168,39 @@ float __stdcall ParseAssistType_Hook()
 
 	if (AssistType >= STEERINGASSIST_DEFAULT)
 		*reinterpret_cast<SteeringAssistType*>(that + 0x74) = AssistType;
+}
+
+uintptr_t p_MainLoopFunc;
+bool __stdcall MainLoop_Hook()
+{
+	uintptr_t that;
+	_asm mov that, ecx
+
+	// #TODO: implement a loop walker...
+
+	bool retVal = reinterpret_cast<bool(__thiscall*)(uintptr_t)>(p_MainLoopFunc)(that);
+
+	MainLoop();
+
+	Config& cfg = Config::Get();
+
+	// hacky workaround for now -- game uses MFC and some weird shenanigans...
+	if (cfg.misc.FixAltF4)
+	{
+		bool bAltF4State = IsAltF4Down();
+
+		if (bAltF4State != bAltF4OldState)
+		{
+			if (!bAltF4State) // negative edge
+			{
+				retVal = true; // ensure a graceful exit...
+			}
+		}
+
+		bAltF4OldState = bAltF4State;
+	}
+
+	return retVal;
 }
 
 #pragma runtime_checks( "", restore )
@@ -316,7 +334,10 @@ void Init()
 	injector::MakeCALL(loc_6E5A81, ParseAssistType_Hook);
 	AssistType = cfg.gameplay.assists.steering.AssistType;
 
-	injector::MakeCALL(0x004044B8, MainLoop, true);
+	//injector::MakeCALL(0x004044B8, MainLoop, true);
+	uintptr_t loc_4053F5 = 0x4053F5;
+	p_MainLoopFunc = static_cast<uintptr_t>(injector::GetBranchDestination(loc_4053F5));
+	injector::MakeCALL(loc_4053F5, MainLoop_Hook);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  reason, LPVOID lpReserved)
