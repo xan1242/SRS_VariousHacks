@@ -264,6 +264,7 @@ void Init()
 	Assists::SetABS(!cfg.gameplay.assists.NoABS);
 	Assists::Steering::SetYawSteerAssist(cfg.gameplay.assists.steering.YawSteerAssist);
 	Assists::Steering::SetAssistWeight(cfg.gameplay.assists.steering.AssistWeight);
+	Assists::Steering::SetReturnSpring(cfg.gameplay.assists.steering.ReturnSpring);
 	Assists::Steering::SetAssistType(cfg.gameplay.assists.steering.AssistType);
 
 	MainLoop::Walker::AddToLoop(OnMainLoop);

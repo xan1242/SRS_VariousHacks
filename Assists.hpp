@@ -17,6 +17,9 @@ namespace Assists
 		void SetAssistWeight(float val);
 		float GetAssistWeight();
 
+		void SetReturnSpring(float val);
+		float GetReturnSpring();
+
 		void SetAssistType(SteeringAssistType type);
 		SteeringAssistType GetAssistType();
 	}

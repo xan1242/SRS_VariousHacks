@@ -51,6 +51,7 @@ Config& Config::ReadConfig(const std::filesystem::path& iniPath)
 
 	ini.ReadValue(FINI_HASH("Gameplay.Assists.Steering"), FINI_HASH("YawSteerAssist"), sConfig.gameplay.assists.steering.YawSteerAssist);
 	ini.ReadValue(FINI_HASH("Gameplay.Assists.Steering"), FINI_HASH("AssistWeight"),   sConfig.gameplay.assists.steering.AssistWeight);
+	ini.ReadValue(FINI_HASH("Gameplay.Assists.Steering"), FINI_HASH("ReturnSpring"),   sConfig.gameplay.assists.steering.ReturnSpring);
 	ini.ReadEnum(FINI_HASH("Gameplay.Assists.Steering"), FINI_HASH("AssistType"),      sConfig.gameplay.assists.steering.AssistType, STEERINGASSIST_MIN, STEERINGASSIST_MAX);
 
 	ini.ReadValue(FINI_HASH("HotKeys"), FINI_HASH("ToggleHood"),    sConfig.hotkeys.vkToggleHood);

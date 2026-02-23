@@ -38,6 +38,7 @@ namespace Assists
 	{
 		float YawSteerAssist = -1.0f;
 		float AssistWeight = -1.0f;
+		float ReturnSpring = -1.0f;
 		SteeringAssistType AssistType = STEERINGASSIST_UNK;
 
 		void SetYawSteerAssist(float val)
@@ -63,6 +64,16 @@ namespace Assists
 		void SetAssistType(SteeringAssistType type)
 		{
 			AssistType = type;
+		}
+
+		float GetReturnSpring()
+		{
+			return ReturnSpring;
+		}
+
+		void SetReturnSpring(float val)
+		{
+			ReturnSpring = val;
 		}
 
 		SteeringAssistType GetAssistType()
@@ -100,6 +111,20 @@ namespace Assists
 			return AssistWeight;
 		}
 
+		uintptr_t p_ParseFloatToken_ReturnSpring;
+		float __stdcall ParseFloatToken_ReturnSpring()
+		{
+			uintptr_t that;
+			_asm mov that, ecx
+
+			float retVal = reinterpret_cast<float(__thiscall*)(uintptr_t)>(p_ParseFloatToken_ReturnSpring)(that);
+
+			if (ReturnSpring < 0.0f)
+				return retVal;
+
+			return ReturnSpring;
+		}
+
 		uintptr_t p_ParseAssistType;
 		float __stdcall ParseAssistType_Hook()
 		{
@@ -118,6 +143,10 @@ namespace Assists
 			uintptr_t loc_6E5B43 = 0x6E5B43;
 			p_ParseFloatToken_YawSteerAssist = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B43));
 			injector::MakeCALL(loc_6E5B43, ParseFloatToken_YawSteerAssist);
+
+			uintptr_t loc_6E5B63 = 0x6E5B63;
+			p_ParseFloatToken_ReturnSpring = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B63));
+			injector::MakeCALL(loc_6E5B63, ParseFloatToken_ReturnSpring);
 			
 			uintptr_t loc_6E5B23 = 0x6E5B23;
 			p_ParseFloatToken_AssistWeight = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B23));
@@ -129,8 +158,6 @@ namespace Assists
 		}
 	}
 
-
-
 	void Init()
 	{
 		Steering::Init();
@@ -138,6 +165,5 @@ namespace Assists
 		uintptr_t loc_6D0503 = 0x6D0503;
 		p_uProcABS = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6D0503));
 		injector::MakeCALL(loc_6D0503, uProcABS_Hook);
-
 	}
 }

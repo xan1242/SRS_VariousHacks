@@ -64,6 +64,7 @@ struct Config
 			{
 				float YawSteerAssist = -1.0f;
 				float AssistWeight = -1.0f;
+				float ReturnSpring = -1.0f;
 				SteeringAssistType AssistType = STEERINGASSIST_UNK;
 			} steering;
 		} assists;
