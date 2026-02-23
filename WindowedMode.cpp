@@ -335,7 +335,7 @@ namespace WindowedMode
 
 
 		// ewwwtechnyx, why do you launch the game minimized??? that makes no sense!
-		injector::MakeJMP(0x403D88, 0x403DA2);
+		//injector::MakeJMP(0x403D88, 0x403DA2);
 
 		uintptr_t loc_640FC6 = 0x640FC6;
 		//p_CWnd_Default = GetBranchDestination_FarJmp(loc_640FC6);
