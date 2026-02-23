@@ -220,7 +220,6 @@ void Init()
 	p_CWnd_Destructor = CWnd_vtbl[vtidx_CWnd_Destructor];
 	injector::WriteMemory(&CWnd_vtbl[vtidx_CWnd_Destructor], &CWnd_Destructor_Hook, true);
 	
-	
 	if (iniReadError)
 		return;
 
@@ -245,31 +244,25 @@ void Init()
 	bool NoABS = false;
 
 
+	ini.ReadValue(FINI_HASH("BootFlow"), FINI_HASH("SkipIntroVideo"), SkipIntroVideo);
+	ini.ReadValue(FINI_HASH("BootFlow"), FINI_HASH("SkipLegalScreens"), SkipLegalScreens);
 
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("SkipIntroVideo"), SkipIntroVideo);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("SkipLegalScreens"), SkipLegalScreens);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("RoadCarReflections"), RoadCarReflections);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("CopCarInDealer"), CopCarInDealer);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("HighestLods"), HighestLods);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("InfiniteNosFlame"), InfiniteNosFlame);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("MoreCameraModes"), MoreCameraModes);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NoDecalRestrictions"), NoDecalRestrictions);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NoEngineRestrictions"), NoEngineRestrictions);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("Console"), Console);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("DisableMinimizeOnAltTab"), DisableMinimizeOnAltTab);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("FixAltF4"), FixAltF4);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("ShowHiddenVinyl"), ShowHiddenVinyl);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("MaxRespect"), MaxRespect);
-	ini.ReadValue(FINI_HASH("GENERAL"), FINI_HASH("NumPaintColors"), NumPaintColors);
+	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("RoadCarReflections"), RoadCarReflections);
+	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("HighestLods"), HighestLods);
+	ini.ReadValue(FINI_HASH("Graphics"), FINI_HASH("InfiniteNosFlame"), InfiniteNosFlame);
 
-	ini.ReadValue(FINI_HASH("NOS_FLAME"), FINI_HASH("Red"), nosColorRed);
-	ini.ReadValue(FINI_HASH("NOS_FLAME"), FINI_HASH("Green"), nosColorGreen);
-	ini.ReadValue(FINI_HASH("NOS_FLAME"), FINI_HASH("Blue"), nosColorBlue);
-	ini.ReadValue(FINI_HASH("NOS_FLAME"), FINI_HASH("Alpha"), nosColorAlpha);
+	ini.ReadValue(FINI_HASH("NosFlame"), FINI_HASH("Red"), nosColorRed);
+	ini.ReadValue(FINI_HASH("NosFlame"), FINI_HASH("Green"), nosColorGreen);
+	ini.ReadValue(FINI_HASH("NosFlame"), FINI_HASH("Blue"), nosColorBlue);
+	ini.ReadValue(FINI_HASH("NosFlame"), FINI_HASH("Alpha"), nosColorAlpha);
 
-
-	ini.ReadValue(FINI_HASH("HOT_KEYS"), FINI_HASH("ToggleHood"), hk_ToggleHood);
-	ini.ReadValue(FINI_HASH("HOT_KEYS"), FINI_HASH("ToggleDrawHUD"), hk_ToggleDrawHUD);
+	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("MoreCameraModes"), MoreCameraModes);
+	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("CopCarInDealer"), CopCarInDealer);
+	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("MaxRespect"), MaxRespect);
+	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("NoDecalRestrictions"), NoDecalRestrictions);
+	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("ShowHiddenVinyl"), ShowHiddenVinyl);
+	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("NoEngineRestrictions"), NoEngineRestrictions);
+	ini.ReadValue(FINI_HASH("Gameplay"), FINI_HASH("NumPaintColors"), NumPaintColors);
 
 	ini.ReadValue(FINI_HASH("Assists"), FINI_HASH("NoABS"), NoABS);
 
@@ -277,6 +270,12 @@ void Init()
 	ini.ReadValue(FINI_HASH("SteeringAssists"), FINI_HASH("AssistWeight"), AssistWeight);
 	ini.ReadEnum(FINI_HASH("SteeringAssists"), FINI_HASH("AssistType"), AssistType, STEERINGASSIST_MIN, STEERINGASSIST_MAX);
 
+	ini.ReadValue(FINI_HASH("HotKeys"), FINI_HASH("ToggleHood"), hk_ToggleHood);
+	ini.ReadValue(FINI_HASH("HotKeys"), FINI_HASH("ToggleDrawHUD"), hk_ToggleDrawHUD);
+
+	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("DisableMinimizeOnAltTab"), DisableMinimizeOnAltTab);
+	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("FixAltF4"), FixAltF4);
+	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("Console"), Console);
 
 	if (RoadCarReflections)
 	{
