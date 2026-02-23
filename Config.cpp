@@ -61,6 +61,7 @@ Config& Config::ReadConfig(const std::filesystem::path& iniPath)
 	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("DisableDInputSetCooperativeLevel_Mouse"), sConfig.misc.DisableDInputSetCooperativeLevel_Mouse);
 	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("FixAltF4"),                sConfig.misc.FixAltF4);
 	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("Console"),                 sConfig.misc.Console);
+	ini.ReadValue(FINI_HASH("Misc"), FINI_HASH("NoMouse"),                 sConfig.misc.NoMouse);
 
 	return sConfig;
 }

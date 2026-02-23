@@ -82,6 +82,7 @@ struct Config
 		bool DisableDInputSetCooperativeLevel_Mouse = false;
 		bool FixAltF4 = true;
 		bool Console = false;
+		bool NoMouse = false;
 	} misc;
 
 	static Config& Get() 

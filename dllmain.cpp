@@ -282,6 +282,12 @@ void Init()
 		injector::MakeRangedNOP(0x6D0500, 0x006D0508);
 	}
 
+	if (cfg.misc.NoMouse)
+	{
+		// skip over all mouse input checks...
+		injector::MakeJMP(0x61D078, 0x61D546);
+	}
+
 
 	injector::WriteMemory(Game::MaxRespect1, cfg.gameplay.MaxRespect, true);
 	injector::WriteMemory(Game::MaxRespect2, cfg.gameplay.MaxRespect, true);
