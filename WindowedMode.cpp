@@ -178,17 +178,6 @@ namespace WindowedMode
 
 		WndConfig& cfg = WndConfig::Get();
 
-		if (cfg.mode <= WNDMODE_DEFAULT)
-		{
-			retVal = reinterpret_cast<BOOL(__thiscall*)(uintptr_t, DWORD, LPCSTR, LPCSTR, DWORD, const LPRECT, uintptr_t, uint32_t, LPVOID)>(p_CWnd_CreateEx)(that, dwExStyle, lpszClassName, lpszWindowName, dwStyle, rect, parent, unk, lpParam);
-			if (retVal)
-			{
-				GameHWND = GetHWNDFromCWnd(that);
-				YeetEdge();
-			}
-			return retVal;
-		}
-
 		retVal = reinterpret_cast<BOOL(__thiscall*)(uintptr_t, DWORD, LPCSTR, LPCSTR, DWORD, const LPRECT, uintptr_t, uint32_t, LPVOID)>(p_CWnd_CreateEx)(that, dwExStyle, lpszClassName, lpszWindowName, dwStyle, rect, parent, unk, lpParam);
 
 		if (retVal)
@@ -196,7 +185,12 @@ namespace WindowedMode
 			GameHWND = GetHWNDFromCWnd(that);
 			//printf("style: 0x%X\n", GetWindowLong(GameHWND, GWL_STYLE));
 			//printf("exstyle: 0x%X\n", GetWindowLong(GameHWND, GWL_EXSTYLE));
-			afterCreateWindow();
+
+			if (cfg.mode <= WNDMODE_DEFAULT)
+				YeetEdge();
+			else
+				afterCreateWindow();
+			
 		}
 
 		return retVal;
