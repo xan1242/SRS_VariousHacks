@@ -304,6 +304,13 @@ namespace WindowedMode
 		return LoadCursor(hInstance, IDC_ARROW);
 	}
 
+	uintptr_t p_uPollInputs;
+	void uPollInputs_Hook()
+	{
+		if (WndProcWalker::IsWindowActive())
+			return reinterpret_cast<void(*)()>(p_uPollInputs)();
+	}
+
 #pragma runtime_checks( "", restore )
 
 	//static uintptr_t GetBranchDestination_FarJmp(uintptr_t at)
@@ -377,6 +384,11 @@ namespace WindowedMode
 		//injector::MakeCALL(loc_403DC5, CWnd_Default_hook_OnWindowCreate2);
 
 		WndProcWalker::AddWndProc(FixUpWndProc);
+
+		// block inputs if window loses focus
+		uintptr_t loc_404410 = 0x404410;
+		p_uPollInputs = static_cast<uintptr_t>(injector::GetBranchDestination(loc_404410));
+		injector::MakeCALL(loc_404410, uPollInputs_Hook);
 
 		WndConfig& cfg = WndConfig::Get();
 		cfg.mode = mode;
