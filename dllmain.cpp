@@ -6,6 +6,7 @@
 #include "WindowedMode.hpp"
 #include "MainLoop.hpp"
 #include "GameExit.hpp"
+#include "Assists.hpp"
 
 #include "includes/ModPath.hpp"
 #include <filesystem>
@@ -145,50 +146,6 @@ void __stdcall CWnd_Destructor_Hook(uint32_t deleteFlag)
 	GameExit::Exit();
 }
 
-
-float YawSteerAssist = -1.0f;
-uintptr_t p_ParseFloatToken_YawSteerAssist;
-float __stdcall ParseFloatToken_YawSteerAssist()
-{
-	uintptr_t that;
-	_asm mov that, ecx
-
-	float retVal = reinterpret_cast<float(__thiscall*)(uintptr_t)>(p_ParseFloatToken_YawSteerAssist)(that);
-
-	if (YawSteerAssist < 0.0f)
-		return retVal;
-
-	return YawSteerAssist;
-}
-
-float AssistWeight = -1.0f;
-uintptr_t p_ParseFloatToken_AssistWeight;
-float __stdcall ParseFloatToken_AssistWeight()
-{
-	uintptr_t that;
-	_asm mov that, ecx
-
-	float retVal = reinterpret_cast<float(__thiscall*)(uintptr_t)>(p_ParseFloatToken_AssistWeight)(that);
-
-	if (AssistWeight < 0.0f)
-		return retVal;
-
-	return AssistWeight;
-}
-
-SteeringAssistType AssistType = STEERINGASSIST_UNK;
-uintptr_t p_ParseAssistType;
-float __stdcall ParseAssistType_Hook()
-{
-	uintptr_t that;
-	_asm mov that, ecx
-
-	reinterpret_cast<void(__thiscall*)(uintptr_t)>(p_ParseAssistType)(that);
-
-	if (AssistType >= STEERINGASSIST_DEFAULT)
-		*reinterpret_cast<SteeringAssistType*>(that + 0x74) = AssistType;
-}
-
 #pragma runtime_checks( "", restore )
 
 
@@ -284,11 +241,6 @@ void Init()
 		injector::MakeNOP(0x55A30A, 5);
 	}
 
-	if (cfg.gameplay.assists.NoABS)
-	{
-		injector::MakeRangedNOP(0x6D0500, 0x006D0508);
-	}
-
 	if (cfg.misc.NoMouse)
 	{
 		// skip over all mouse input checks...
@@ -308,20 +260,11 @@ void Init()
 	injector::WriteMemory(0x006A6CC3, cfg.graphics.effects.nosflame.ColorBlue, true);
 	injector::WriteMemory(0x006A6CBE, cfg.graphics.effects.nosflame.ColorAlpha, true);
 
-	uintptr_t loc_6E5B43 = 0x6E5B43;
-	p_ParseFloatToken_YawSteerAssist = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B43));
-	injector::MakeCALL(loc_6E5B43, ParseFloatToken_YawSteerAssist);
-	YawSteerAssist = cfg.gameplay.assists.steering.YawSteerAssist;
-
-	uintptr_t loc_6E5B23 = 0x6E5B23;
-	p_ParseFloatToken_AssistWeight = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5B23));
-	injector::MakeCALL(loc_6E5B23, ParseFloatToken_AssistWeight);
-	AssistWeight = cfg.gameplay.assists.steering.AssistWeight;
-
-	uintptr_t loc_6E5A81 = 0x6E5A81;
-	p_ParseAssistType = static_cast<uintptr_t>(injector::GetBranchDestination(loc_6E5A81));
-	injector::MakeCALL(loc_6E5A81, ParseAssistType_Hook);
-	AssistType = cfg.gameplay.assists.steering.AssistType;
+	Assists::Init();
+	Assists::SetABS(!cfg.gameplay.assists.NoABS);
+	Assists::Steering::SetYawSteerAssist(cfg.gameplay.assists.steering.YawSteerAssist);
+	Assists::Steering::SetAssistWeight(cfg.gameplay.assists.steering.AssistWeight);
+	Assists::Steering::SetAssistType(cfg.gameplay.assists.steering.AssistType);
 
 	MainLoop::Walker::AddToLoop(OnMainLoop);
 }

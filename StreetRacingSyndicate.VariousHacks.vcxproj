@@ -97,6 +97,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Assists.hpp" />
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameExit.hpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="WndProcWalker.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Assists.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GameExit.cpp" />
